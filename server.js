@@ -3,96 +3,107 @@ const TRAILERFLIX = require('./FileSystem');
 const app = express();
 const PORT = process.env.PORT || 3008;
 
+// Funcion para eliminar acentos
+function quitarAcentos(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 //Ruta raiz
 app.get("/", (req, res) => {
-  res.send("<h1>Bienvenidas al servidor web Trailerflix!</h1>"); //Envía una respuesta al cliente con un mensaje HTML
+  res.send("<h1>🎬Bienvenidas al servidor web Trailerflix!</h1>"); //Envia una respuesta con un mensaje HTML
 });
 
-app.get("/catalogo", async (req, res) => {  
+app.get("/catalogo", async (req, res, next) => {  
   try {
      // Llamamos a la función TRAILERFLIX para obtener los datos
-     const trailerflix = await TRAILERFLIX(); // Esto usa await correctamente porque estamos dentro de una función async
+     const trailerflix = await TRAILERFLIX(); // Esto usa await porque estamos dentro de una funcion async
       //Estamos ordenando de manera ascendente el id
      const catalogo = trailerflix.sort((a, b) => {
-      return a.id - b.id;
-     })
-     // Si todo sale bien, devolvemos el catálogo en formato JSON
-     res.json(trailerflix); 
+        if (a.id > b.id) {
+          return 1
+        }
+        if (a.id < b.id) {
+          return -1
+        }
+        return 0
+      });
+     //devolvemos el catalogo en formato JSON
+     res.json(catalogo); 
     } catch (error) {
-     // Si ocurre un error inesperado, se devuelve un estado 500 (error del servidor)
-     res.status(500).json({ mensaje: 'Error al cargar el catálogo.'});
+      next(error); // Pasamos el error al middleware de errores
     }
 });
  
 //Ruta para buscar una pelicula por su titulo
-app.get("/titulo/:title", async (req, res) => {
-  const title = req.params.title.trim().toLowerCase();
+app.get("/titulo/:title", async (req, res, next) => {
+  const titulo = quitarAcentos(req.params.title.trim().toLowerCase());
       
   try {
-    const trailer = await TRAILERFLIX(); // Obtenemos el catálogo de películas y series
-    // Filtramos las películas/series cuyo título contenga el texto ingresado
+    // Obtenemos el catalogo de peliculas y series
+    const trailer = await TRAILERFLIX(); 
+    // Filtramos las peliculas/series cuyo titulo contenga el texto ingresado
     const resultado = trailer.filter(flix => 
-      flix.titulo.toLowerCase() === title
+      quitarAcentos(flix.titulo.toLowerCase()).includes(titulo)
     );
       
     if (resultado.length > 0) {
-      res.json(resultado);  // Devolvemos los resultados encontrados
+      res.json(resultado);  // Devolvemos el resultado encontrado
     } else {
-      res.status(404).json({ mensaje: 'No se encontraron títulos que coincidan.' }); // Si no encontramos nada
+      res.status(404).json({ mensaje: "No se encontraron titulos que coincidan." }); // Si no se encuentra ningun resultado
     }
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al buscar el título.'});
+    next(error); // Pasamos el error al middleware de errores
   }
 });
 
-app.get("/categoria/:cat", async (req, res) => {
-  const categoria = req.params.cat.trim().toLowerCase();
+app.get("/categoria/:cat", async (req, res, next) => {
+  const categoria = quitarAcentos(req.params.cat.trim().toLowerCase());
       
   try {
-    const trailer = await TRAILERFLIX();  // Obtenemos el catálogo de películas/series
-    // Filtramos las películas/series por categoría
+    const trailer = await TRAILERFLIX();  
+    // Filtramos las peliculas/series por categoria
     const resultado = trailer.filter(flix =>
-      flix.categoria.toLowerCase() === categoria
+      quitarAcentos(flix.categoria.toLowerCase()) === categoria
     );
       
     if (resultado.length > 0) {
-      res.json(resultado); // Si encontramos resultados, los devolvemos en formato JSON
+      res.json(resultado); // Devolvemos los resultados encontrados
     } else {
-      res.status(404).json({ mensaje: 'No se encontraron contenido para esa categoría.' });  // Si no hay contenido
+      res.status(404).json({ mensaje: "No se encontraron contenido para esa categoria." }); 
     }
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al buscar por categoría.'});
+    next(error); 
   }
 });
 
-app.get("/reparto/:act", async (req, res) => {
-  const reparto = req.params.act.trim().toLowerCase();
+app.get("/reparto/:act", async (req, res, next) => {
+  const reparto = quitarAcentos(req.params.act.trim().toLowerCase());
 
   try {
     const trailer = await TRAILERFLIX();
-    // Se filtran los elementos cuyo reparto coincida exactamente con el parámetro
-    // Luego se mapea el resultado para devolver solo el título y el reparto
-    const resultado = trailer.filter(flix => flix.reparto.toLowerCase() === reparto).map(flix => ({
+    // Se filtran los elementos cuyo reparto coincida exactamente con el parametro
+    // Luego se mapea el resultado para devolver solo el titulo y el reparto
+    const resultado = trailer.filter(flix => quitarAcentos(flix.reparto.toLowerCase()).includes(reparto)).map(flix => ({
       titulo: flix.titulo,
       reparto: flix.reparto
     }));
 
     if (resultado.length === 0) {
-      return res.status(404).json({ mensaje: `No se encontró contenido con el reparto.` });
+      return res.status(404).json({ mensaje: "No se encontro contenido con el reparto." });
     }
     
     res.json(resultado);
   } catch (error) {
-    res.status(500).json({ mensaje: 'Error al buscar por reparto.'});
+    next(error); 
   }
 });
 
-app.get('/trailer/:id', async (req, res) => {
-  const id = parseInt(req.params.id); // Convierte el parámetro id a número
+app.get('/trailer/:id', async (req, res, next) => {
+  const id = parseInt(req.params.id); // Convierte el parametro id a numero
   try {
-    const trailer = await TRAILERFLIX(); // Carga el catálogo completo
+    const avance = await TRAILERFLIX(); 
       
-    const objeto = trailer.find(flix => flix.id === id); // Busca por id
+    const objeto = avance.find(flix => flix.id === id); // Busca por id
       
     if (objeto?.trailer) {
       // Si el objeto y su propiedad trailer existen
@@ -101,16 +112,25 @@ app.get('/trailer/:id', async (req, res) => {
         titulo: objeto.titulo,
         trailer: objeto.trailer
       });
-    } else {
-      // Si no tiene trailer
-      res.status(404).json({ mensaje: "Trailer no disponible para esta película o serie."});
+    } else { 
+      res.status(404).json({ mensaje: "Trailer no disponible para esta pelicula o serie."});// Si no tiene trailer
     }
       
     } catch (error) {
-      res.status(500).json({ mensaje: "Error al acceder al catálogo."});
+      next(error); 
     }
 });
-      
+
+// Middleware 404 (ruta no encontrada)
+app.use((req, res) => {
+  res.status(404).json({ mensaje: "Ruta no encontrada." });
+});
+
+// Middleware 500 (errores internos)
+app.use((err, req, res, next) => {
+  console.error(err.stack);// Muestra el stack del error en la consola
+  res.status(500).json({ mensaje: "Error interno del servidor." });
+});
 
 app.listen(PORT, () => {
   console.log(`Servidor iniciando en el puerto ${PORT}`);

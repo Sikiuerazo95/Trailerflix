@@ -6,15 +6,16 @@ dotenv.config(); // Carga las variables definidas en el archivo .env
 
 const database = path.join(__dirname, process.env.DATA_PATH); // Construcción de la ruta al archivo
 
-// Función asincrónica que lee y parsea el archivo JSON
+// Función asincronica que lee y parsea el archivo JSON
 async function TRAILERFLIX() {
   try {
     const data = await fs.readFile(database, 'utf8'); // Lee el archivo
     return JSON.parse(data); // Parseamos el JSON y lo devolvemos
   } catch (error) {
-    throw error; // Lanza el error si algo falla (lectura o parseo)
+    console.error("Error al parsear JSON:", error);// Si ocurre un error al parsear el JSON
+    throw error;
   }
 }
 
-// Exportación de la función
+// Exportacion de la funcion
 module.exports = TRAILERFLIX;
