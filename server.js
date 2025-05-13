@@ -101,7 +101,7 @@ app.get("/reparto/:act", async (req, res, next) => {
   }
 });
 
-app.get('/trailer/:id', async (req, res, next) => {
+app.get("/trailer/:id", async (req, res, next) => {
   const id = parseInt(req.params.id); // Convierte el parametro id a numero
   try {
     const avance = await TRAILERFLIX(); 
