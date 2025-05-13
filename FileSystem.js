@@ -1,8 +1,5 @@
 const fs = require('fs').promises; // Utilizamos fs.promises para trabajar con promesas
 const path = require('path');
-const dotenv = require('dotenv');
-
-dotenv.config(); // Carga las variables definidas en el archivo .env
 
 const database = path.join(__dirname, process.env.DATA_PATH); // Construcción de la ruta al archivo
 
