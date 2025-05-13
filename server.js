@@ -11,7 +11,7 @@ function quitarAcentos(str) {
   return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-//Ruta raiz
+//Ruta raiz.
 app.get("/", (req, res) => {
   res.send("<h1>🎬Bienvenidas al servidor web Trailerflix!</h1>"); //Envia una respuesta con un mensaje HTML
 });
