@@ -1,4 +1,4 @@
-### Backend Equipo 8
+### Backend - Equipo 8
 
 # 🎬 Trailerflix API
 
