@@ -1,9 +1,9 @@
-# TRAILERFLIX
-Backend Equipo 8
+### Backend Equipo 8
 
 # 🎬 Trailerflix API
 
-Trailerflix es un servidor web desarrollado con **Node.js y Express** que simula una API de catálogo de películas y series. Permite consultar títulos, categorías, trailers y reparto, todo desde una estructura simple y funcional. 
+Trailerflix es un servidor web desarrollado con **Node.js y Express** que simula una API de catálogo de películas y series. Permite consultar títulos, categorías, trailers y reparto, todo desde una estructura simple y funcional.
+
 ---
 
 ## 🚀 Características
