@@ -1,10 +1,7 @@
 const express = require('express');
 const TRAILERFLIX = require('./FileSystem');
-const dotenv = require('dotenv');
 const app = express();
 const PORT = process.env.PORT || 3008;
-
-dotenv.config(); // Carga las variables definidas en el archivo .ENV
 
 // Funcion para eliminar acentos
 function quitarAcentos(str) {
