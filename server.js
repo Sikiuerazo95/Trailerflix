@@ -135,4 +135,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Servidor iniciando en el puerto ${PORT}`);
 });
-
